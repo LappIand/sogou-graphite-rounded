@@ -55,7 +55,7 @@ def main():
     run([git,'config','--local','user.email',f'{identifier}+{owner}@users.noreply.github.com'])
     # Repository-local credential configuration: no token in URLs or files.
     helper='!"'+str(Path(gh)).replace('\\','/')+'" auth git-credential'
-    run([git,'config','--local','credential.https://github.com.helper',''])
+    run([git,'config','--local','--replace-all','credential.https://github.com.helper',''])
     run([git,'config','--local','--add','credential.https://github.com.helper',helper])
     code,text=run([git,'remote','get-url','origin'],'origin.txt',False)
     url=f'https://github.com/{nwo}.git'
@@ -67,7 +67,8 @@ def main():
     code,_=run([git,'diff','--cached','--quiet'],check=False)
     if code==1:run([git,'commit','-m','Publish Graphite Rounded; credit xiaochunjimmy and jrfeng'])
     elif code:raise RuntimeError('Git staged change check failed')
-    run([git,'push','--set-upstream','origin','main'])
+    code,_=run([git,'push','--set-upstream','origin','main'],check=False)
+    if code:run([git,'-c','http.proxy=','push','--set-upstream','origin','main'])
     assets=[archive,ROOT/'skins/Graphite-Rounded-Light.ssf',ROOT/'skins/Graphite-Rounded-Dark.ssf',ROOT/'assets/preview.png']
     code,_=run([gh,'release','view',VERSION,'--repo',nwo,'--json','url'],'existing-release.json',False)
     if code:
