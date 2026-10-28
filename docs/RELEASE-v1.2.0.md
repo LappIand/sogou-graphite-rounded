@@ -1,6 +1,10 @@
 # Graphite Rounded v1.2.0
 
-基于 Graphite 石墨皮肤的圆角与深色适配版本。
+**这是给 Windows 搜狗拼音输入法使用的圆角 / 深色皮肤包，不是独立输入法程序。** 基于 Graphite 石墨皮肤，提供浅色、深色两套外观。
+
+[项目首页与预览](https://github.com/LappIand/sogou-graphite-rounded) · [安装与还原教程](https://github.com/LappIand/sogou-graphite-rounded/blob/main/docs/INSTALL.md)
+
+想使用搜狗的原生模式开关，请下载完整 ZIP，接入版本限定为 **16.6.0.4777**；想直接双击安装一种配色，请选择对应的 `.ssf` 文件。
 
 **原设计作者：** [xiaochunjimmy](https://github.com/xiaochunjimmy)（Jimmy Cheung / Remix Design）  
 **Windows 移植作者：** [jrfeng](https://github.com/jrfeng)  
