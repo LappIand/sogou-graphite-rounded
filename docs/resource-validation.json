@@ -1,0 +1,154 @@
+{
+  "radius_px": 8,
+  "border_px": 1,
+  "supersampling": 6,
+  "shadow_blur_px": 2.3,
+  "shadow_offset_px": [
+    0,
+    2
+  ],
+  "font_and_candidate_margins": "unchanged",
+  "variants": {
+    "Light": {
+      "member_count": 49,
+      "image_references": 48,
+      "layout_slice_updates": [
+        {
+          "section": "Scheme_H1",
+          "key": "layout_horizontal",
+          "old": "0,20,20",
+          "new": "0,22,22"
+        },
+        {
+          "section": "Scheme_H1",
+          "key": "layout_vertical",
+          "old": "0,20,20",
+          "new": "0,20,24"
+        },
+        {
+          "section": "Scheme_H2",
+          "key": "pinyin_layout_horizontal",
+          "old": "0,18,17",
+          "new": "0,22,22"
+        },
+        {
+          "section": "Scheme_H2",
+          "key": "pinyin_layout_vertical",
+          "old": "0,19,22",
+          "new": "0,20,24"
+        },
+        {
+          "section": "Scheme_H2",
+          "key": "zhongwen_layout_vertical",
+          "old": "0,17,21",
+          "new": "0,20,24"
+        },
+        {
+          "section": "Scheme_V1",
+          "key": "layout_horizontal",
+          "old": "0,16,16",
+          "new": "0,22,22"
+        },
+        {
+          "section": "Scheme_V1",
+          "key": "layout_vertical",
+          "old": "0,19,22",
+          "new": "0,20,24"
+        },
+        {
+          "section": "Scheme_V2",
+          "key": "pinyin_layout_horizontal",
+          "old": "0,20,16",
+          "new": "0,22,18"
+        },
+        {
+          "section": "Scheme_V2",
+          "key": "pinyin_layout_vertical",
+          "old": "0,17,21",
+          "new": "0,20,24"
+        },
+        {
+          "section": "Scheme_V2",
+          "key": "zhongwen_layout_horizontal",
+          "old": "0,20,20",
+          "new": "0,22,22"
+        }
+      ],
+      "fixed_corner_stretch_tests": 60,
+      "native_sha256": "a9ed1f34bc2b748f9a281b8333710b6e58c177869f591b0487b5f9b7884eda73",
+      "ssf_sha256": "dc19bde59f430ddc06f651ea339f88fc813a082fbe59a45305f18a92718c0f75"
+    },
+    "Dark": {
+      "member_count": 49,
+      "image_references": 48,
+      "layout_slice_updates": [
+        {
+          "section": "Scheme_H1",
+          "key": "layout_horizontal",
+          "old": "0,20,20",
+          "new": "0,22,22"
+        },
+        {
+          "section": "Scheme_H1",
+          "key": "layout_vertical",
+          "old": "0,20,20",
+          "new": "0,20,24"
+        },
+        {
+          "section": "Scheme_H2",
+          "key": "pinyin_layout_horizontal",
+          "old": "0,18,17",
+          "new": "0,22,22"
+        },
+        {
+          "section": "Scheme_H2",
+          "key": "pinyin_layout_vertical",
+          "old": "0,19,22",
+          "new": "0,20,24"
+        },
+        {
+          "section": "Scheme_H2",
+          "key": "zhongwen_layout_vertical",
+          "old": "0,17,21",
+          "new": "0,20,24"
+        },
+        {
+          "section": "Scheme_V1",
+          "key": "layout_horizontal",
+          "old": "0,16,16",
+          "new": "0,22,22"
+        },
+        {
+          "section": "Scheme_V1",
+          "key": "layout_vertical",
+          "old": "0,19,22",
+          "new": "0,20,24"
+        },
+        {
+          "section": "Scheme_V2",
+          "key": "pinyin_layout_horizontal",
+          "old": "0,20,16",
+          "new": "0,22,18"
+        },
+        {
+          "section": "Scheme_V2",
+          "key": "pinyin_layout_vertical",
+          "old": "0,17,21",
+          "new": "0,20,24"
+        },
+        {
+          "section": "Scheme_V2",
+          "key": "zhongwen_layout_horizontal",
+          "old": "0,20,20",
+          "new": "0,22,22"
+        }
+      ],
+      "fixed_corner_stretch_tests": 60,
+      "native_sha256": "8055f71929abce1cf1e60c0cbf1980449347e32394352a37d32229c955766387",
+      "ssf_sha256": "1b9c7b360f7cdee81feabd136ca62ac0e527aed19fca6ac71881451eb35423c9"
+    }
+  },
+  "originals_preserved": true,
+  "installation_performed": false,
+  "published_scope": "Sanitized resource validation; no host configuration or screenshots."
+}

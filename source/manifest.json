@@ -1,0 +1,15 @@
+{
+  "upstream": "https://github.com/Remix-Design/Sogou-Input-Skin",
+  "original_design": "xiaochunjimmy (Jimmy Cheung / Remix Design)",
+  "windows_port": "jrfeng",
+  "samples": [
+    {
+      "path": "source/Graphite-with_shadow.original.ssf",
+      "sha256": "39129f6d0045859010da2e0b09a396926c56b9f2406b54c09a4b7220b46c1cb7"
+    },
+    {
+      "path": "source/Graphite-Dark-with_shadow.ssf",
+      "sha256": "fe13e7b27ed5fd28ed0841c213892fd0ba471bb6123b7424ce5149339aae8817"
+    }
+  ]
+}

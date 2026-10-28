@@ -1,0 +1,5 @@
+* text=auto eol=lf
+*.ssf -text
+*.dat -text
+*.png -text
+*.zip -text

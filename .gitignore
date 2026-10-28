@@ -1,0 +1,11 @@
+build/
+dist/
+.publish/
+__pycache__/
+*.pyc
+.venv/
+venv/
+backups/
+.env
+.env.*
+*.log

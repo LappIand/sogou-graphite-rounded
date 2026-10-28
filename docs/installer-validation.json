@@ -1,0 +1,45 @@
+{
+  "Scope": "Workspace fixtures only; registry, installation path, backup path and principal are mocked. Actual Sogou installation is unchanged.",
+  "Tests": [
+    {
+      "Test": "check is read-only",
+      "Status": "passed"
+    },
+    {
+      "Test": "install backs up and validates both resources",
+      "Status": "passed"
+    },
+    {
+      "Test": "repeat install preserves original backup",
+      "Status": "passed"
+    },
+    {
+      "Test": "restore produces original byte-identical resources",
+      "Status": "passed"
+    },
+    {
+      "Test": "tampered source stops before changes",
+      "Status": "passed"
+    },
+    {
+      "Test": "untested version stops before changes",
+      "Status": "passed"
+    },
+    {
+      "Test": "non-elevated install stops before changes",
+      "Status": "passed"
+    },
+    {
+      "Test": "injected installation write failure restores originals",
+      "Status": "passed"
+    },
+    {
+      "Test": "tampered manifest path stops before changes",
+      "Status": "passed"
+    },
+    {
+      "Test": "restore works with corrupt sources and missing installed resource",
+      "Status": "passed"
+    }
+  ]
+}
