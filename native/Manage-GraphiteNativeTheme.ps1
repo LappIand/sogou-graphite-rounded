@@ -1,4 +1,5 @@
-# Manual Graphite native theme-slot manager (version-agnostic). Default action: read-only Check.
+# Manual Graphite native theme-slot manager.
+# Default action: read-only Check. Install patches every existing version directory.
 [CmdletBinding()]
 param(
     [ValidateSet('Install', 'Restore', 'Check')]
@@ -23,50 +24,20 @@ $KnownStock = @{
 $Registry = Get-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\WOW6432Node\SogouInput'
 $InstallRoot = [string]$Registry.'(default)'
 if (-not (Test-Path -LiteralPath $InstallRoot -PathType Container)) { throw "Sogou install root not found: $InstallRoot. No files changed." }
-
-function Resolve-ActiveVersionDirectory {
-    param([string]$Root)
-    # Prefer the directory of a running Sogou binary; the registry Version
-    # value can point at a directory that an in-flight update has not created.
-    $running = @()
-    foreach ($name in @('SGTool', 'SogouCloud', 'SogouImeBroker', 'SGMyInput')) {
-        foreach ($p in @(Get-Process -Name $name -ErrorAction SilentlyContinue)) {
-            try { if ($p.Path) { $running += $p.Path } } catch { }
-        }
-    }
-    foreach ($module in @('SogouTSF.dll', 'UIPlugin.dll')) {
-        foreach ($p in @(Get-Process -ErrorAction SilentlyContinue)) {
-            try {
-                if ($p.Path -and $p.Path.StartsWith($Root, [StringComparison]::OrdinalIgnoreCase)) { $running += $p.Path }
-            } catch { }
-        }
-    }
-    $candidates = @()
-    foreach ($path in $running) {
-        $dir = Split-Path -Parent $path
-        if (Test-Path -LiteralPath (Join-Path $dir 'Skin.dat')) { $candidates += $dir }
-    }
-    if ($candidates.Count -eq 0) {
-        $dirs = @(Get-ChildItem -LiteralPath $Root -Directory -ErrorAction SilentlyContinue |
-            Where-Object { $_.Name -match '^\d+(\.\d+){1,}$' -and (Test-Path -LiteralPath (Join-Path $_.FullName 'Skin.dat')) })
-        if ($dirs.Count -eq 0) { throw "No Sogou version directory with Skin.dat found under $Root. No files changed." }
-        $candidates = @($dirs | Sort-Object { [version]($_.Name) } -Descending | Select-Object -First 1 | ForEach-Object FullName)
-    }
-    return @($candidates | Select-Object -Unique)[0]
-}
-
-$InstallPath = Resolve-ActiveVersionDirectory -Root $InstallRoot
-$Version = Split-Path -Leaf $InstallPath
 $BackupRoot = Join-Path $env:LOCALAPPDATA 'GraphiteSogouNativeTheme\backup'
-$BackupPath = Join-Path $BackupRoot $Version
 
-function Get-Sha256([string]$Path) {
-    (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
+function Get-Sha256([string]$Path) { (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() }
+
+function Get-VersionDirectories {
+    param([string]$Root)
+    @(Get-ChildItem -LiteralPath $Root -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -match '^\d+(\.\d+){1,}$' -and (Test-Path -LiteralPath (Join-Path $_.FullName 'Skin.dat')) } |
+        Sort-Object { [version]$_.Name } -Descending)
 }
 
-function Assert-BackupManifest($saved) {
-    if ([string]$saved.InstallPath -ne $InstallPath) { throw 'Backup was created for a different Sogou version directory. No files changed.' }
-    if (@($saved.Files).Count -ne $SourceFiles.Count) { throw 'Unexpected backup file count. No files changed.' }
+function Assert-BackupManifest($saved, [string]$InstallPath, [string]$BackupPath) {
+    if ([string]$saved.InstallPath -ne $InstallPath) { throw "Backup belongs to a different directory: $InstallPath. No files changed." }
+    if (@($saved.Files).Count -ne $SourceFiles.Count) { throw "Unexpected backup file count in $InstallPath. No files changed." }
     $seen = @{}
     foreach ($item in $saved.Files) {
         $name = [string]$item.Name
@@ -74,24 +45,31 @@ function Assert-BackupManifest($saved) {
         $seen[$name] = $true
         if ([string]$item.Path -ne (Join-Path $InstallPath $name)) { throw 'Unexpected backup destination. No files changed.' }
         $backup = Join-Path $BackupPath $name
-        if (-not (Test-Path -LiteralPath $backup)) { throw "Missing backup file: $name. No files changed." }
-        if ((Get-Sha256 $backup) -ne [string]$item.SHA256) { throw "Backup checksum mismatch: $name. No files changed." }
+        if (-not (Test-Path -LiteralPath $backup)) { throw "Missing backup file: $backup. No files changed." }
+        if ((Get-Sha256 $backup) -ne [string]$item.SHA256) { throw "Backup checksum mismatch: $backup. No files changed." }
     }
 }
 
-Write-Host "Sogou version directory: $InstallPath"
-Write-Host "Backup directory: $BackupPath"
+function Get-State([string]$Path, [string]$SourceName) {
+    $hash = Get-Sha256 $Path
+    if ($hash -eq $ExpectedHashes[$SourceName]) { return 'patched' }
+    $key = Split-Path -Leaf $Path
+    if ($hash -eq $KnownStock[$key]) { return 'stock' }
+    return 'unknown'
+}
+
+$directories = Get-VersionDirectories -Root $InstallRoot
+if ($directories.Count -eq 0) { throw "No Sogou version directory with Skin.dat found under $InstallRoot. No files changed." }
 
 if ($Action -eq 'Check') {
-    foreach ($name in $SourceFiles.Keys) {
-        $target = Join-Path $InstallPath $name
-        $stock = (Get-Sha256 $target) -eq $KnownStock[$name]
-        $patch = (Get-Sha256 $target) -eq $ExpectedHashes[$SourceFiles[$name]]
-        $state = if ($patch) { 'Graphite already applied' } elseif ($stock) { 'stock Sogou resource' } else { 'unrecognized resource' }
-        Write-Host ("{0}: {1}" -f $name, $state)
+    foreach ($dir in $directories) {
+        Write-Host ("{0}  ({1})" -f $dir.Name, $dir.FullName)
+        foreach ($name in $SourceFiles.Keys) {
+            Write-Host ("   {0}: {1}" -f $name, (Get-State (Join-Path $dir.FullName $name) $SourceFiles[$name]))
+        }
+        $manifest = Join-Path (Join-Path $BackupRoot $dir.Name) 'manifest.json'
+        Write-Host ("   backup manifest: {0}" -f ($(if (Test-Path -LiteralPath $manifest) { 'present' } else { 'none' })))
     }
-    $manifest = Join-Path $BackupPath 'manifest.json'
-    Write-Host ("Backup manifest: {0}" -f ($(if (Test-Path -LiteralPath $manifest) { 'present' } else { 'none yet' })))
     Write-Host 'Check complete. No files changed.'
     exit 0
 }
@@ -107,53 +85,73 @@ if ($Action -eq 'Install') {
         $source = Join-Path $Root $SourceFiles[$name]
         if (-not (Test-Path -LiteralPath $source -PathType Leaf)) { throw "Missing source: $source" }
         if ((Get-Sha256 $source) -ne $ExpectedHashes[$SourceFiles[$name]]) { throw "Source checksum mismatch: $source" }
-        $target = Join-Path $InstallPath $name
-        if (-not (Test-Path -LiteralPath $target -PathType Leaf)) { throw "Missing installed resource: $target" }
     }
-    New-Item -ItemType Directory -Path $BackupPath -Force | Out-Null
-    $manifest = Join-Path $BackupPath 'manifest.json'
-    if (-not (Test-Path -LiteralPath $manifest)) {
+    foreach ($dir in $directories) {
+        $installPath = $dir.FullName
+        $version = $dir.Name
+        $backupPath = Join-Path $BackupRoot $version
+        $states = @{}
+        $skip = $false
         foreach ($name in $SourceFiles.Keys) {
-            if (Test-Path -LiteralPath (Join-Path $BackupPath $name)) { throw 'Incomplete earlier backup found. No files changed.' }
-        }
-        $items = @()
-        foreach ($name in $SourceFiles.Keys) {
-            $target = Join-Path $InstallPath $name
-            $current = Get-Sha256 $target
-            if ($current -ne $KnownStock[$name] -and $current -ne $ExpectedHashes[$SourceFiles[$name]]) {
-                throw "Unrecognized current $name; refusing to overwrite without a known backup baseline."
+            $target = Join-Path $installPath $name
+            if (-not (Test-Path -LiteralPath $target -PathType Leaf)) { throw "Missing installed resource: $target" }
+            $states[$name] = Get-State $target $SourceFiles[$name]
+            if ($states[$name] -eq 'unknown') {
+                $skip = $true
+                Write-Warning "Skipping $version : $name is neither stock nor Graphite. Nothing replaced in this directory."
             }
-            $backup = Join-Path $BackupPath $name
-            Copy-Item -LiteralPath $target -Destination $backup
-            if ((Get-Sha256 $backup) -ne $current) { throw "Backup verification failed: $name" }
-            $items += [pscustomobject]@{ Name = $name; Path = $target; SHA256 = $current }
         }
-        [pscustomobject]@{ Version = $Version; InstallPath = $InstallPath; Files = $items } |
-            ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $manifest -Encoding UTF8
-    }
-    $saved = Get-Content -LiteralPath $manifest -Raw | ConvertFrom-Json
-    Assert-BackupManifest $saved
-    try {
-        foreach ($name in $SourceFiles.Keys) {
-            Copy-Item -LiteralPath (Join-Path $Root $SourceFiles[$name]) -Destination (Join-Path $InstallPath $name) -Force
-            if ((Get-Sha256 (Join-Path $InstallPath $name)) -ne $ExpectedHashes[$SourceFiles[$name]]) { throw "Installed checksum mismatch: $name" }
+        if ($skip) { continue }
+        New-Item -ItemType Directory -Path $backupPath -Force | Out-Null
+        $manifest = Join-Path $backupPath 'manifest.json'
+        if (-not (Test-Path -LiteralPath $manifest)) {
+            foreach ($name in $SourceFiles.Keys) {
+                if (Test-Path -LiteralPath (Join-Path $backupPath $name)) { throw "Incomplete earlier backup in $backupPath. No files changed." }
+            }
+            $items = @()
+            foreach ($name in $SourceFiles.Keys) {
+                $target = Join-Path $installPath $name
+                $current = Get-Sha256 $target
+                $backup = Join-Path $backupPath $name
+                Copy-Item -LiteralPath $target -Destination $backup
+                if ((Get-Sha256 $backup) -ne $current) { throw "Backup verification failed: $backup" }
+                $items += [pscustomobject]@{ Name = $name; Path = $target; SHA256 = $current }
+            }
+            [pscustomobject]@{ Version = $version; InstallPath = $installPath; Files = $items } |
+                ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $manifest -Encoding UTF8
         }
+        $saved = Get-Content -LiteralPath $manifest -Raw | ConvertFrom-Json
+        Assert-BackupManifest $saved $installPath $backupPath
+        try {
+            foreach ($name in $SourceFiles.Keys) {
+                Copy-Item -LiteralPath (Join-Path $Root $SourceFiles[$name]) -Destination (Join-Path $installPath $name) -Force
+                if ((Get-Sha256 (Join-Path $installPath $name)) -ne $ExpectedHashes[$SourceFiles[$name]]) { throw "Installed checksum mismatch: $installPath\$name" }
+            }
+        }
+        catch {
+            foreach ($item in $saved.Files) { Copy-Item -LiteralPath (Join-Path $backupPath $item.Name) -Destination $item.Path -Force }
+            throw
+        }
+        Write-Host "Applied Graphite to $version"
     }
-    catch {
-        foreach ($item in $saved.Files) { Copy-Item -LiteralPath (Join-Path $BackupPath $item.Name) -Destination $item.Path -Force }
-        throw
-    }
-    Write-Host "Applied Graphite light/dark resources to $Version (classic default slot)."
-    Write-Host 'Next: choose the classic default skin in Sogou, then use Appearance -> light/dark/follow system.'
+    Write-Host 'Done. In Sogou choose the classic default skin, then Appearance -> light/dark/follow system.'
+    Write-Host 'Re-run Install after a Sogou upgrade; each version is backed up separately.'
 }
 else {
-    $manifest = Join-Path $BackupPath 'manifest.json'
-    if (-not (Test-Path -LiteralPath $manifest)) { throw "No backup manifest for $Version. No files changed." }
-    $saved = Get-Content -LiteralPath $manifest -Raw | ConvertFrom-Json
-    Assert-BackupManifest $saved
-    foreach ($item in $saved.Files) {
-        Copy-Item -LiteralPath (Join-Path $BackupPath $item.Name) -Destination $item.Path -Force
-        if ((Get-Sha256 $item.Path) -ne [string]$item.SHA256) { throw "Restore verification failed: $($item.Name)" }
+    $restored = 0
+    foreach ($dir in $directories) {
+        $installPath = $dir.FullName
+        $backupPath = Join-Path $BackupRoot $dir.Name
+        $manifest = Join-Path $backupPath 'manifest.json'
+        if (-not (Test-Path -LiteralPath $manifest)) { continue }
+        $saved = Get-Content -LiteralPath $manifest -Raw | ConvertFrom-Json
+        Assert-BackupManifest $saved $installPath $backupPath
+        foreach ($item in $saved.Files) {
+            Copy-Item -LiteralPath (Join-Path $backupPath $item.Name) -Destination $item.Path -Force
+            if ((Get-Sha256 $item.Path) -ne [string]$item.SHA256) { throw "Restore verification failed: $($item.Name)" }
+        }
+        Write-Host "Restored original resources for $($dir.Name)"
+        $restored++
     }
-    Write-Host "Original $Version resources restored."
+    if ($restored -eq 0) { throw "No backup manifest found under $BackupRoot. No files changed." }
 }
