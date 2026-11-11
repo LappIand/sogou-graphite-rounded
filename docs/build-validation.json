@@ -76,7 +76,7 @@
       ],
       "fixed_corner_stretch_tests": 60,
       "native_sha256": "a9ed1f34bc2b748f9a281b8333710b6e58c177869f591b0487b5f9b7884eda73",
-      "ssf_sha256": "103ebc16365edea33f4dac7c87d0cff1aaf75546addc6f5216a543b0ae5aac6d"
+      "ssf_sha256": "22614dd91913f447dc8a746b3e6ad607a514980adc20e89887dcd2152330e071"
     },
     "Dark": {
       "member_count": 49,
@@ -145,7 +145,7 @@
       ],
       "fixed_corner_stretch_tests": 60,
       "native_sha256": "8055f71929abce1cf1e60c0cbf1980449347e32394352a37d32229c955766387",
-      "ssf_sha256": "3b900a1ed1c35d6f544eed4af80bdbfa4a52f45fc5bb5d866ffee968bbe9186e"
+      "ssf_sha256": "6ab81875c9aa16f6d27b92d17df68479876339fe58aba3ab449c46037b8b7133"
     }
   },
   "originals_preserved": true,

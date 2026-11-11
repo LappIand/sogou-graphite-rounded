@@ -4,10 +4,10 @@
 
 在 Graphite 石墨皮肤基础上加入 **8px 圆角、柔和阴影、浅色与深色配色**。下载后即可使用，不需要自己编译。
 
-**快速入口：** [下载完整安装包](https://github.com/LappIand/sogou-graphite-rounded/releases/download/v1.2.0/Graphite-Rounded-Native-LightDark-16.6.zip) · [查看安装教程](docs/INSTALL.md) · [全部下载与版本](https://github.com/LappIand/sogou-graphite-rounded/releases/latest)
+**快速入口：** [下载完整安装包](https://github.com/LappIand/sogou-graphite-rounded/releases/latest/download/Graphite-Rounded-Native-LightDark.zip) · [查看安装教程](docs/INSTALL.md) · [全部下载与版本](https://github.com/LappIand/sogou-graphite-rounded/releases/latest)
 
-- 想用搜狗的“浅色 / 深色 / 跟随系统”开关：选择完整原生接入包，适用 **搜狗 16.6.0.4777** 的经典默认皮肤槽位。
-- 想直接双击安装单种配色：下载 [浅色 `.ssf`](https://github.com/LappIand/sogou-graphite-rounded/releases/download/v1.2.0/Graphite-Rounded-Light.ssf) 或 [深色 `.ssf`](https://github.com/LappIand/sogou-graphite-rounded/releases/download/v1.2.0/Graphite-Rounded-Dark.ssf)，两者为单主题皮肤。
+- 想用搜狗的“浅色 / 深色 / 跟随系统”开关：选择完整原生接入包，接入**经典默认皮肤槽位**。安装脚本自动识别当前搜狗版本，已验证 16.6.0.4777 与 16.10.0.6125。
+- 想直接双击安装单种配色：下载 [浅色 `.ssf`](https://github.com/LappIand/sogou-graphite-rounded/releases/latest/download/Graphite-Rounded-Light.ssf) 或 [深色 `.ssf`](https://github.com/LappIand/sogou-graphite-rounded/releases/latest/download/Graphite-Rounded-Dark.ssf)，两者为单主题皮肤。
 
 > 本项目是 **Graphite 石墨皮肤的二次修改版本**，不是原创皮肤。
 >
@@ -33,7 +33,9 @@
 
 ### 原生浅色 / 深色 / 跟随系统
 
-本项目核对的接入方式适用于 **Windows 搜狗 16.6.0.4777**：把两套资源接入**经典默认皮肤槽位**，由搜狗自身的模式开关选择资源。它不是在一个普通第三方 `.ssf` 中添加未经验证的深色字段。
+本项目把两套资源接入**经典默认皮肤槽位**，由搜狗自身的模式开关选择资源。它不是在一个普通第三方 `.ssf` 中添加未经验证的深色字段。
+
+**搜狗升级后需重新安装一次。** 升级会在新版本目录使用自带原始资源，旧目录的替换不会继承；安装脚本会自动找到当前运行的版本目录并单独备份。
 
 1. 解压 Release 中的原生接入包，或使用本仓库 `native/` 目录。
 2. 在包含 `Manage-GraphiteNativeTheme.ps1` 的目录打开管理员 PowerShell。

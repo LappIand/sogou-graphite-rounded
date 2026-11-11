@@ -170,8 +170,13 @@ for dark,source,label in ((False,'Graphite-with_shadow.original.ssf','Light'),(T
 
 # Reuse the audited installer without changing backup location or restore logic.
 manager=(ROOT/'source/Manage-GraphiteNativeTheme.template.ps1').read_text(encoding='utf-8')
+# The template may already carry the derived hashes; make replacement idempotent.
 for label,old in (('Light','4c3b6d9aea7e566542458c424211ba0e50e82183aa23f4c191279c00fb56abfd'),('Dark','b7f0aca32ac96f99b6675fa602d8489c4b309126a7abc11d29ebd15125ef414a')):
-    assert manager.count(old)==1;manager=manager.replace(old,report['variants'][label]['native_sha256'])
+    expected=report['variants'][label]['native_sha256']
+    if old in manager:
+        assert manager.count(old)==1
+        manager=manager.replace(old,expected)
+    assert manager.count(expected)==1, 'installer hash does not match built resource for '+label
 (OUT/'Manage-GraphiteNativeTheme.ps1').write_text(manager,encoding='utf-8')
 
 import os

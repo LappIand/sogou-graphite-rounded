@@ -12,11 +12,11 @@ PUBLIC_FILES=[
     'source/Graphite-with_shadow.original.ssf','source/Graphite-Dark-with_shadow.ssf',
     'source/panel-geometry.json','source/manifest.json','source/Manage-GraphiteNativeTheme.template.ps1',
     'scripts/build.py','scripts/package.py','scripts/publish.py',
-    'docs/INSTALL.md','docs/BUILD.md','docs/VALIDATION.md','docs/RELEASE-v1.2.0.md',
+    'docs/INSTALL.md','docs/BUILD.md','docs/VALIDATION.md','docs/RELEASE-v1.3.0.md',
     'docs/resource-validation.json','docs/installer-validation.json','docs/build-validation.json',
 ]
-VERSION='v1.2.0'
-PACKAGE_NAME='Graphite-Rounded-Native-LightDark-16.6.zip'
+VERSION='v1.3.0'
+PACKAGE_NAME='Graphite-Rounded-Native-LightDark.zip'
 
 
 def native_members(data):
@@ -42,7 +42,7 @@ def audit():
             assert not token_pattern.search(text),f'Credential-like text found in {name}'
             assert not any(re.search(pattern,text,re.I) for pattern in private_patterns),f'Host-specific path found in {name}'
         files.append({'path':name,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
-    for name in ('README.md','ATTRIBUTION.md','docs/RELEASE-v1.2.0.md'):
+    for name in ('README.md','ATTRIBUTION.md','docs/RELEASE-v1.3.0.md'):
         text=(ROOT/name).read_text(encoding='utf-8')
         assert 'xiaochunjimmy' in text and 'Jimmy Cheung' in text and 'jrfeng' in text,name
     manager=(ROOT/'native/Manage-GraphiteNativeTheme.ps1').read_text(encoding='utf-8')
@@ -88,7 +88,7 @@ def package():
         assert set(z.namelist())==set(entries)|{'使用说明.md','validation.json'}
         for name,path in entries.items():assert z.read(name)==path.read_bytes()
         assert 'xiaochunjimmy' in z.read('ATTRIBUTION.md').decode('utf-8') and 'jrfeng' in z.read('ATTRIBUTION.md').decode('utf-8')
-    source_archive=dist/'Graphite-Rounded-Source-v1.2.0.zip'
+    source_archive=dist/('Graphite-Rounded-Source-'+VERSION+'.zip')
     with ZipFile(source_archive,'w',ZIP_DEFLATED,compresslevel=9) as z:
         for name in PUBLIC_FILES:z.writestr('sogou-graphite-rounded/'+name,(ROOT/name).read_bytes())
     with ZipFile(source_archive) as z:
